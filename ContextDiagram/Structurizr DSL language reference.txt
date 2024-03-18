@@ -1,0 +1,44 @@
+workspace {
+    name "BankoWeb"
+    description "Online Banking System"
+
+    model {
+        Customer = person "Customer" "A customer of the bank"
+        BankStaff = person "Bank Staff" "Customer service representatives, loan officers, etc."
+        
+       
+        
+        CreditBureau = softwareSystem "Credit Bureau" "External system for credit checks"
+        ExternalBanks = softwareSystem "External Banks" "External banks for interbank transfers"
+        PaymentGateways = softwareSystem "Payment Gateways" "External payment gateways for bill payments"
+        RegulatoryAuthorities = softwareSystem "Regulatory Authorities" "Financial regulatory authorities for compliance reporting"
+        BankoWeb = softwareSystem "BankoWeb" "Comprehensive online banking platform"
+
+        Customer -> BankoWeb "Performs banking activities"
+        BankStaff -> BankoWeb "Manages customer accounts and services"
+        BankoWeb -> CreditBureau "Performs credit checks for loan applications"
+        BankoWeb -> ExternalBanks "Facilitates interbank transfers"
+        BankoWeb -> PaymentGateways "Processes bill payments"
+        BankoWeb -> RegulatoryAuthorities "Submits compliance reports"
+    }
+
+    views {
+        systemContext BankoWeb "ContextDiagraForBankoWeb" {
+            include *
+            autoLayout lr
+        }
+        
+        styles {
+            element "Software System" {
+                background #1168bd
+                color #ffffff
+            }
+            element "Person" {
+                shape person
+                background #08427b
+                color #ffffff
+            }
+        }
+
+    }
+}

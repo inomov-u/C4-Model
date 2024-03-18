@@ -1,0 +1,78 @@
+workspace {
+    name "BankoWeb"
+    description "High-level technological architecture of BankoWeb"
+
+    model {
+
+        User = person "BankoWeb customers and bank staff" "Uses comprehensive online banking platform"
+        
+        
+        BankoWebSystem = softwaresystem "BankoWeb Software System"{
+    
+        WebApplication = container  "Web Application" "Front-end interface for customers and staff" "React.js"
+        MobileApplication = container "Mobile Application" "Native app for iOS and Android devices" "Swift, Kotlin"
+
+        APIGateway = container "API Gateway" "Entry point for requests to backend systems" "Node.js"
+        ApplicationServer = container "Application Server" "Hosts business logic and handles user requests" "Java/Spring Boot"
+        Database = container "Database" "Stores user accounts, transaction histories, etc." "MySQL"
+
+        MessagingQueue = container "Messaging Queue" "Facilitates asynchronous communication" "Apache Kafka"
+
+        NotificationService = container "Notification Service" "Sends notifications (email, sms) to users"
+        }
+        
+        CreditBureaus = softwareSystem "Credit Bureaus" "For credit checks"
+        ExternalBanks = softwareSystem "External Banks" "For interbank transfers"
+        PaymentGateways = softwareSystem "Payment Gateways" "For bill payments"
+        RegulatoryAuthorities = softwareSystem "Regulatory Authorities" "For compliance reporting"
+
+
+        User -> BankoWebSystem "Uses"
+
+        User -> WebApplication "Uses"
+        User -> MobileApplication "Uses"
+
+        WebApplication -> APIGateway "Communicates through"
+        MobileApplication -> APIGateway "Communicates through"
+        
+        APIGateway -> ApplicationServer "Requests go to the server"
+
+        ApplicationServer -> Database "Post, Get, Update, Delete data requests"
+        
+        ApplicationServer -> MessagingQueue "Schedules notification"
+        
+        MessagingQueue -> NotificationService "Requests to send notification"
+        
+        NotificationService -> User "Sends Notification to the customers and bank staff" 
+        
+        
+        APIGateway -> CreditBureaus "Serever talks through API Gateway to performs credit checks for loan application"
+        APIGateway -> ExternalBanks "Faciliates interbank transfers"
+        APIGateway -> PaymentGateways "Sending the payment details and receiving responses regarding the success or failure of the transaction"
+        APIGateway -> RegulatoryAuthorities "Sends compliance reporting"
+    }
+
+    views {
+        systemContext "BankoWebSystem" "ContainersDiagramForBankoWeb" {
+            include *
+            autoLayout lr
+        }
+        
+        container "BankoWebSystem" "ContainersDiagramForBankoWeb2" {
+            include *
+            autoLayout lr
+        }
+        
+        styles {
+            element "Software System" {
+                background #1168bd
+                color #ffffff
+            }
+            element "Person" {
+                shape person
+                background #08427b
+                color #ffffff
+            }
+        }
+    }
+}

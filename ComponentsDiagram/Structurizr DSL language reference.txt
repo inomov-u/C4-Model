@@ -1,0 +1,129 @@
+
+
+workspace {
+    name "BankoWeb"
+    description "High-level technological architecture of BankoWeb"
+
+    model {
+
+        User = person "BankoWeb customers and bank staff" "Uses comprehensive online banking platform"
+        
+        
+        BankoWebSystem = softwaresystem "BankoWeb Software System"{
+    
+        WebApplication = container  "Web Application" "Front-end interface for customers and staff" "React.js"
+        MobileApplication = container "Mobile Application" "Native app for iOS and Android devices" "Swift, Kotlin"
+
+        APIGateway = container "API Gateway" "Entry point for requests to backend systems" "Node.js"
+        ApplicationServer = container "Application Server" "Hosts business logic and handles user requests" "Java/Spring Boot"{
+            LoginController = component "Login Controller" "Manages login requests and user authentication"
+            UserAuthentication = component "User Authentication" "Responsible for managing user logins, sessions, and security protocols" "UserSessionManager, SecurityService, UserRepository"
+            
+            AccountManagement = component "Account Management" "Allows users to view account balances, recent transactions, and manage account settings" "AccountService, AccountRepository"
+            AccountController = component "Account Controller" "Handles requests related to account management functionalities"
+            
+            TransactionProcessing = component "Transaction Processing" "Handles fund transfers between accounts, bill payments, and interbank transfers" "TransactionService, TransactionRepository"
+            TransactionController = component "Transaction Controller" "Manages requests related to transaction processing"
+            
+            LoanManagement = component "Loan Management" "Manages loan application processes, including integration with credit bureaus for credit scoring and loan disbursement" "LoanService, CreditBureauService, LoanRepository"
+            LoanController = component "Loan Controller" "Handles loan application requests"
+            
+            NotificationService = component "Notification Service" "Sends notifications to users about transactions, loan application statuses, and promotional offers" "NotificationService, NotificationRepository (interface for db)"
+            NotificationController = component "Notification Controller" "Manages notification requests"
+            
+        }
+        
+        
+        Database = container "Database" "Stores user accounts, transaction histories, etc." "MySQL"
+
+        MessagingQueue = container "Messaging Queue" "Facilitates asynchronous communication" "Apache Kafka"
+
+        
+        }
+        
+        CreditBureaus = softwareSystem "Credit Bureaus" "For credit checks"
+        ExternalBanks = softwareSystem "External Banks" "For interbank transfers"
+        PaymentGateways = softwareSystem "Payment Gateways" "For bill payments"
+        RegulatoryAuthorities = softwareSystem "Regulatory Authorities" "For compliance reporting"
+
+
+        User -> BankoWebSystem "Uses"
+
+        User -> WebApplication "Uses"
+        User -> MobileApplication "Uses"
+
+        WebApplication -> APIGateway "Communicates through"
+        MobileApplication -> APIGateway "Communicates through"
+        
+        APIGateway -> ApplicationServer "Requests go to the server"
+
+        ApplicationServer -> Database "Post, Get, Update, Delete data requests"
+        
+        ApplicationServer -> MessagingQueue "Schedules notification"
+        
+        MessagingQueue -> NotificationService "Requests to send notification"
+        
+        
+        NotificationService -> User "Sends Notification to the customers and bank staff" 
+        
+        
+        APIGateway -> CreditBureaus "Server (Loan Management component sends request to its controller) talks through API Gateway to performs credit checks for loan application"
+        APIGateway -> ExternalBanks "Faciliates interbank transfers (Transaction Processing component asks controller to send this request through APIGateway to external banks"
+        APIGateway -> PaymentGateways "Sending the payment details and receiving responses regarding the success or failure of the transaction"
+        APIGateway -> RegulatoryAuthorities "Sends compliance reporting"
+        
+        # Component connections
+        APIGateway -> LoginController "Login requests come from Web and Mobile apps through API Gateway"
+        LoginController -> UserAuthentication "Uses"
+        UserAuthentication -> Database "Checks entered login, password. If a new user - adds user account"
+        
+        APIGateway -> AccountController "Account Management request come from Web and Mobile apps through API Gateway"
+        AccountController -> AccountManagement "Uses"
+        AccountManagement -> Database "Gets User's account balances, recent transaction, account settings"
+        
+        APIGateway -> TransactionController "Transaction processing request"
+        TransactionController -> TransactionProcessing "Uses"
+        TransactionProcessing -> Database "Updates account balance"
+        
+        APIGateway -> LoanController "Loan application requests"
+        LoanController -> LoanManagement "Uses"
+        
+        LoginController -> NotificationController "Requests to send code for user authentication"
+        TransactionController -> NotificationController "Requests to send notification about transaction"
+        LoanController -> NotificationController "Requests to send notification about loan update/change"
+        NotificationController -> NotificationService "Uses"
+        
+        NotificationController -> MessagingQueue "Schedules notification (email, sms etc.)"
+        
+        
+    }
+
+    views {
+        systemContext "BankoWebSystem" "SystemDiagramForBankoWeb" {
+            include *
+            autoLayout lr
+        }
+        
+        container "BankoWebSystem" "ContainersDiagramForBankoWeb" {
+            include *
+            autoLayout lr
+        }
+        
+        component "ApplicationServer" "ComponentDiagramForApplicationServer" {
+            include *
+            autoLayout lr
+        }
+        
+        styles {
+            element "Software System" {
+                background #1168bd
+                color #ffffff
+            }
+            element "Person" {
+                shape person
+                background #08427b
+                color #ffffff
+            }
+        }
+    }
+}
